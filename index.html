@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+
+    <title>Py-Script Weather App</title>
+</head>
+<body style = "background-image: url('\green_background.png');">
+    <div class="title">
+        <h1 style = "color:rgb(5, 15, 45); font-family:Verdana; text-align:center; font-size: 3em; box-shadow: rgb(5, 15, 45);">
+        Pyscript Weather App</h1>
+    </div>
+    <div class="container-fluid" style="width: 410px;margin: 50px auto;padding: 10px; ">
+        <section class="main">
+        <section class="inputs" style = "padding: 4rem 0 4rem 0;text-align: center;justify-content: center;background: #d7e9d1;border-color: black;">
+            <input type="text" placeholder="Enter any city..." id="cityinput" style=" height: 3.5rem;
+            background: #212121;
+            font-size: 1.5rem;
+            padding: 10px;
+            color: rgb(238, 229, 229);
+            margin-right:4px ;">
+            <input type="submit" value="Submit"  pys-onClick="convert"  id="convert" style="height: 3.2rem;
+            width: 6.5rem;
+            background: #ADD19E;
+            font-weight: bold;
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            border: none;
+            border-radius: 2px;">
+        <button placeholder="submit" id="add"></button><br><br>
+        </section>
+ 
+        <section class="display" style="text-align: center;
+        width: 400px;
+        color: #16a864;">
+            <div class="wrapper" style = "margin: 0 9rem;
+            background-color: rgb(186, 247, 190);
+            height: 45vh;
+            margin: 50px auto;
+            border-radius: 2px;
+            font-size: 2em;">
+                <h2 id="cityouput"></h2>
+                <p id="temp"></p>
+                <p id="wind"></p>
+                <p id="humidity"></p>
+                <p id="description"></p>
+
+            </div>
+        </section>
+        </section>
+
+</div>
+    <py-script>
+from js import document,alert
+from pyodide.http import pyfetch
+import json
+import asyncio
+import re
+            
+async def data(city):
+    response = await pyfetch(url="https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=198700fd07cfb27eb62679f850c5d048", method="GET")
+    output = f'{await response.json()}'
+    str1 = output.replace("\'", "\"")
+    st= json.loads(str1)
+    return st
+                
+async def convert(*args, **kwargs):
+    celsius = document.getElementById('cityinput').value;
+    result= await data(celsius)
+    pyscript.write("cityouput",f"Weather of {result['name']}, {result['sys']['country']}"  )    
+    pyscript.write("wind",f"Wind Speed : {result['wind']['speed']}" )  
+    pyscript.write("description",f"Weather: {result['weather'][0]['main']}" )    
+    pyscript.write("humidity",f"Humidity :  {result['main']['humidity']}" )    
+    pyscript.write('temp', "Temperature {} °C".format(round(result['main']['temp']- 273.15,3)))
+      
+    </py-script>
+    
+</body>
+</html>
